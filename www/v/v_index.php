@@ -1,0 +1,1 @@
+<div id="grid"><div class="button" id="NewBoard"></div><div class="button" id="Profile"></div><div class="button" id="Join"></div></div><div style="clear: both"></div>

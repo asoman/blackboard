@@ -1,0 +1,35 @@
+.button{
+    float:left;  
+    height: 300px;
+    width: 300px;
+    margin: 30px;
+    
+}
+
+
+
+#grid{
+    
+   position: fixed;
+   top: 50%;
+   left: 50%;
+   width:1100px;
+   height:300px;
+   margin-top:-150px;
+   margin-left: -550px;
+}
+
+#NewBoard{
+    background-image: url(../img/newBoard.gif)
+    
+}
+
+#Profile{
+    background-image: url(../img/profile.gif)
+    
+}
+
+#Join{
+    background-image: url(../img/Join.gif)
+    
+}
