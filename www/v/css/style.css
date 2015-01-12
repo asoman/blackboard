@@ -13,3 +13,8 @@ body{
       margin-bottom:12px; width:95%; padding: .4em;
   }
   
+  .ui-dialog{
+      
+      
+      height:1000px;
+  }
