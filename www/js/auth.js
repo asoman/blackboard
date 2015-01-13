@@ -3,10 +3,9 @@
 $(function () {
     var dialog, form,
             emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
-            name = $("#name"),
             email = $("#email"),
             password = $("#password"),
-            allFields = $([]).add(name).add(email).add(password),
+            allFields = $([]).add(email).add(password),
             tips = $(".validateTips");
     function updateTips(t) {
         tips
@@ -38,27 +37,29 @@ $(function () {
     function addUser() {
         var valid = true;
         allFields.removeClass("ui-state-error");
-        valid = valid && checkLength(name, "username", 3, 16);
         valid = valid && checkLength(email, "email", 6, 80);
         valid = valid && checkLength(password, "password", 5, 16);
-        valid = valid && checkRegexp(name, /^[a-z]([0-9a-z_\s])+$/i, "Username may consist of a-z, 0-9, underscores, spaces and must begin with a letter.");
-        valid = valid && checkRegexp(email, emailRegex, "eg. ui@jquery.com");
-        valid = valid && checkRegexp(password, /^([0-9a-zA-Z])+$/, "Password field only allow : a-z 0-9");
+        valid = valid && checkRegexp(email, emailRegex, "Пример: example@email.com");
+        valid = valid && checkRegexp(password, /^([0-9a-zA-Z!?~])+$/, "Допустимые символы : A-Z a-z 0-9 ~!?");
         if (valid) {
 //Отправка данных на сервер
             dialog.dialog("close");
         }
         return valid;
     }
+    
+    
+    
     dialog = $("#dialog-form").dialog({
         autoOpen: false,
-        height: 500,
+        height: 350,
         width: 500,
         modal: true,
         buttons: {
             "Create an account": addUser,
             Cancel: function () {
                 dialog.dialog("close");
+                window.location.replace("/");
             }
         },
         close: function () {
@@ -67,13 +68,15 @@ $(function () {
         }
     });
 
+
+
     form = dialog.find("form").on("submit", function (event) {
         event.preventDefault();
         addUser();
     });
 
 
-    $(".register").on("click", function () {
+        $( window ).load(function()  {
         dialog.dialog("open");
     });
 });

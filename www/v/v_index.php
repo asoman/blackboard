@@ -1,1 +1,1 @@
-<div id="grid"><div class="button register" id="NewBoard"></div><div class="button register" id="Profile"></div><div class="button register" id="Join"></div></div><div style="clear: both"></div>
+<div id="grid">    <a href="auth/login"><div class="button register" id="NewBoard"></div></a><div class="button register" id="Profile"></div><div class="button register" id="Join"></div></div><div style="clear: both"></div>
