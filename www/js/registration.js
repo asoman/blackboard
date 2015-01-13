@@ -5,6 +5,7 @@ $(function () {
             emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
             email = $("#email"),
             password = $("#password"),
+            repeatpassword = $("#repeatrpassword"),
             allFields = $([]).add(email).add(password),
             tips = $(".validateTips");
     function updateTips(t) {
@@ -15,7 +16,16 @@ $(function () {
             tips.removeClass("ui-state-highlight", 1500);
         }, 500);
     }
-   
+    function checkLength(o, n, min, max) {
+        if (o.val().length > max || o.val().length < min) {
+            o.addClass("ui-state-error");
+            updateTips("Длина " + n + " должна составлять от " +
+                    min + " до " + max + " символов.");
+            return false;
+        } else {
+            return true;
+        }
+    }
     function checkRegexp(o, regexp, n) {
         if (!(regexp.test(o.val()))) {
             o.addClass("ui-state-error");
@@ -25,12 +35,13 @@ $(function () {
             return true;
         }
     }
-    
     function addUser() {
         var valid = true;
         allFields.removeClass("ui-state-error");
-        valid = valid && checkRegexp(email, emailRegex, "В Email содержится ошибка.");
-        valid = valid && checkRegexp(password, /^([0-9a-zA-Z!#?~])+$/, "Пароль содержит запрещённые символы.");
+        valid = valid && checkLength(email, "email", 6, 80);
+        valid = valid && checkLength(password, "password", 5, 16);
+        valid = valid && checkRegexp(email, emailRegex, "Пример: example@email.com");
+        valid = valid && checkRegexp(password, /^([0-9a-zA-Z!#?~])+$/, "Допустимые символы : A-Z a-z 0-9 +-*/=~!?");
         if (valid) {
 //Отправка данных на сервер
             dialog.dialog("close");
@@ -42,18 +53,18 @@ $(function () {
     
     dialog = $("#dialog-form").dialog({
         autoOpen: true,
-        height: 350,
-        width: 500,
+        height: 500,
+        width: 600,
         modal: true,
         buttons: {
-            "Войти": addUser,
+            "Создать аккаунт": addUser,
             "Отмена": function () {
                 dialog.dialog("close");
             },
-            "Регистрация": function () {
+            "Уже есть аккаунт?": function () {
                 form[ 0 ].reset();
                 allFields.removeClass("ui-state-error");
-                window.location.replace("/auth/register");
+                window.location.replace("/auth/login");
             }
         },
         close: function () {
