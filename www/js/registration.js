@@ -53,7 +53,7 @@ $(function () {
     
     dialog = $("#dialog-form").dialog({
         autoOpen: true,
-        height: 500,
+        height: 400,
         width: 600,
         modal: true,
         buttons: {
