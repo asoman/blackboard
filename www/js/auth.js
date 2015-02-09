@@ -7,6 +7,7 @@ $(function () {
             password = $("#password"),
             allFields = $([]).add(email).add(password),
             tips = $(".validateTips");
+            $( "#remember" ).button();
     function updateTips(t) {
         tips
                 .text(t)
@@ -32,8 +33,12 @@ $(function () {
         valid = valid && checkRegexp(email, emailRegex, "В Email содержится ошибка.");
         valid = valid && checkRegexp(password, /^([0-9a-zA-Z!#?~])+$/, "Пароль содержит запрещённые символы.");
         if (valid) {
-//Отправка данных на сервер
-            dialog.dialog("close");
+            $.post("/a/ajax.php", { request: "login", mail: email.text(), password: password.text()},function(data){
+  alert("Data Loaded: " + data);
+});
+            //dialog.dialog("close");
+            
+           
         }
         return valid;
     }
@@ -42,8 +47,8 @@ $(function () {
     
     dialog = $("#dialog-form").dialog({
         autoOpen: true,
-        height: 350,
-        width: 500,
+        height: 400,
+        width: 600,
         modal: true,
         buttons: {
             "Войти": addUser,

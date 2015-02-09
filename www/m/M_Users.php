@@ -52,10 +52,10 @@ class M_Users
 	// $remember 	- нужно ли запомнить в куках
 	// результат	- true или false
 	//
-	public function Login($login, $password, $remember = true)
+	public function Login($mail, $password, $remember = true)
 	{
 		// вытаскиваем пользователя из БД 
-		$user = $this->GetByLogin($login);
+		$user = $this->GetByMail($mail);
 
 		if ($user == null)
 			return false;
@@ -70,7 +70,7 @@ class M_Users
 		if ($remember)
 		{
 			$expire = time() + 3600 * 24 * 100;
-			setcookie('login', $login, $expire);
+			setcookie('mail', $mail, $expire);
 			setcookie('password', md5($password), $expire);
 		}		
 				
@@ -85,9 +85,9 @@ class M_Users
 	//
 	public function Logout()
 	{
-		setcookie('login', '', time() - 1);
+		setcookie('mail', '', time() - 1);
 		setcookie('password', '', time() - 1);
-		unset($_COOKIE['login']);
+		unset($_COOKIE['mail']);
 		unset($_COOKIE['password']);
 		unset($_SESSION['sid']);		
 		$this->sid = null;
@@ -118,10 +118,10 @@ class M_Users
 	//
 	// Получает пользователя по логину
 	//
-	public function GetByLogin($login)
+	public function GetByMail($Mail)
 	{	
-		$t = "SELECT * FROM users WHERE login = '%s'";
-		$query = sprintf($t, mysql_real_escape_string($login));
+		$t = "SELECT * FROM users WHERE mail = '%s'";
+		$query = sprintf($t, mysql_real_escape_string($mail));
 		$result = $this->msql->Select($query);
 		return $result[0];
 	}
