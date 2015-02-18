@@ -1,1 +1,1 @@
-<?phpclass M_Pages{	private static $instance;	// ýêçåìïëÿð êëàññà	public static function Instance()	{		if (self::$instance == null)			self::$instance = new M_Pages();					return self::$instance;	}		}
+<?phpclass M_Pages{	private static $instance;	// ÑÐºÐ·ÐµÐ¼Ð¿Ð»ÑÑ€ ÐºÐ»Ð°ÑÑÐ°	public static function Instance()	{		if (self::$instance == null)			self::$instance = new M_Pages();					return self::$instance;	}		}

@@ -4,20 +4,18 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/Z:/home/blackboard/www/c/C_Page.php</file>
+            <file>file:/Z:/home/blackboard/www/ajax.php</file>
             <file>file:/Z:/home/blackboard/www/index.php</file>
+            <file>file:/Z:/home/blackboard/www/.htaccess</file>
             <file>file:/Z:/home/blackboard/www/c/C_Base.php</file>
-            <file>file:/Z:/home/blackboard/www/v/v_auth.php</file>
-            <file>file:/Z:/home/blackboard/www/v/v_edit.php</file>
-            <file>file:/Z:/home/blackboard/www/v/v_index.php</file>
-            <file>file:/Z:/home/blackboard/www/js/registration.js</file>
+            <file>file:/Z:/home/blackboard/www/a/m_ajax.php</file>
             <file>file:/Z:/home/blackboard/www/m/M_Users.php</file>
-            <file>file:/Z:/home/blackboard/www/c/C_Start.php</file>
             <file>file:/Z:/home/blackboard/www/js/auth.js</file>
             <file>file:/Z:/home/blackboard/www/m/M_MSQL.php</file>
-            <file>file:/Z:/home/blackboard/www/v/v_register.php</file>
-            <file>file:/Z:/home/blackboard/www/v/v_main.php</file>
-            <file>file:/Z:/home/blackboard/www/c/C_Auth.php</file>
+            <file>file:/Z:/home/blackboard/www/config.php</file>
+            <file>file:/Z:/home/blackboard/www/a/a_register.php</file>
             <file>file:/Z:/home/blackboard/www/c/C_Controller.php</file>
+            <file>file:/Z:/home/blackboard/www/a/a_login.php</file>
             <file>file:/Z:/home/blackboard/www/m/M_Pages.php</file>
         </group>
     </open-files>
