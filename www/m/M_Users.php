@@ -1,19 +1,19 @@
 <?php
 
 //
-// Менеджер пользователей
+// РњРµРЅРµРґР¶РµСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
 //
 class M_Users
 {	
-	private static $instance;	// экземпляр класса
-	private $msql;				// драйвер БД
-	private $sid;				// идентификатор текущей сессии
-	private $uid;				// идентификатор текущего пользователя
-	private $onlineMap;			// карта пользователей online
+	private static $instance;	// СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР°
+	private $msql;				// РґСЂР°Р№РІРµСЂ Р‘Р”
+	private $sid;				// РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РµРєСѓС‰РµР№ СЃРµСЃСЃРёРё
+	private $uid;				// РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РµРєСѓС‰РµРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+	private $onlineMap;			// РєР°СЂС‚Р° РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ online
 	
 	//
-	// Получение экземпляра класса
-	// результат	- экземпляр класса MSQL
+	// РџРѕР»СѓС‡РµРЅРёРµ СЌРєР·РµРјРїР»СЏСЂР° РєР»Р°СЃСЃР°
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° MSQL
 	//
 	public static function Instance()
 	{
@@ -24,7 +24,7 @@ class M_Users
 	}
 
 	//
-	// Конструктор
+	// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
 	//
 	public function __construct()
 	{
@@ -35,7 +35,7 @@ class M_Users
 	}
 	
 	//
-	// Очистка неиспользуемых сессий
+	// РћС‡РёСЃС‚РєР° РЅРµРёСЃРїРѕР»СЊР·СѓРµРјС‹С… СЃРµСЃСЃРёР№
 	// 
 	public function ClearSessions()
 	{
@@ -46,48 +46,65 @@ class M_Users
 	}
 
 	//
-	// Авторизация
-	// $login 		- логин
-	// $password 	- пароль
-	// $remember 	- нужно ли запомнить в куках
-	// результат	- true или false
+	// РђРІС‚РѕСЂРёР·Р°С†РёСЏ
+	// $login 		- Р»РѕРіРёРЅ
+	// $password 	- РїР°СЂРѕР»СЊ
+	// $remember 	- РЅСѓР¶РЅРѕ Р»Рё Р·Р°РїРѕРјРЅРёС‚СЊ РІ РєСѓРєР°С…
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- true РёР»Рё false
 	//
-	public function Login($login, $password, $remember = true)
+	public function Login($mail, $password, $remember = true)
 	{
-		// вытаскиваем пользователя из БД 
-		$user = $this->GetByLogin($login);
-
+		// РІС‹С‚Р°СЃРєРёРІР°РµРј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР· Р‘Р” 
+		$user = $this->GetByMail($mail);
+                
+                
 		if ($user == null)
 			return false;
 		
 		$id_user = $user['id_user'];
-				
-		// проверяем пароль
-		if ($user['password'] != md5($password))
+                //С…СЌС€ РїР°СЂРѕР»СЏ
+		$password_hash = password_hash($password, PASSWORD_BCRYPT);
+                
+		// РїСЂРѕРІРµСЂСЏРµРј РїР°СЂРѕР»СЊ
+		if (!password_verify($user['password'],$password_hash))
 			return false;
 				
-		// запоминаем имя и md5(пароль)
+		// Р·Р°РїРѕРјРёРЅР°РµРј РёРјСЏ Рё md5(РїР°СЂРѕР»СЊ)
 		if ($remember)
 		{
 			$expire = time() + 3600 * 24 * 100;
-			setcookie('login', $login, $expire);
+			setcookie('mail', $mail, $expire);
 			setcookie('password', md5($password), $expire);
 		}		
 				
-		// открываем сессию и запоминаем SID
+		// РѕС‚РєСЂС‹РІР°РµРј СЃРµСЃСЃРёСЋ Рё Р·Р°РїРѕРјРёРЅР°РµРј SID
 		$this->sid = $this->OpenSession($id_user);
 		
 		return true;
 	}
+        
+        public function Register($mail,$password)
+        {
+                $user = $this->GetByMail($mail);
+                //РїСЂРѕРІРµСЂСЏРµРј РЅР°Р»РёС‡РёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СЃ С‚Р°РєРѕР№ РїРѕС‡С‚РѕР№                
+		if ($user != null)
+			return false;
+                
+                $mail_s = $this->msql->mysqli->real_escape_string($mail);
+                $password_hash = password_hash($password, PASSWORD_BCRYPT);
+            
+                $result = $this->msql->Insert('users',array('email'=>"$mail_s", 'password'=>"$password_hash"));
+                return $result;
+        }
 	
 	//
-	// Выход
+	// Р’С‹С…РѕРґ
 	//
 	public function Logout()
 	{
-		setcookie('login', '', time() - 1);
+		setcookie('mail', '', time() - 1);
 		setcookie('password', '', time() - 1);
-		unset($_COOKIE['login']);
+		unset($_COOKIE['mail']);
 		unset($_COOKIE['password']);
 		unset($_SESSION['sid']);		
 		$this->sid = null;
@@ -95,20 +112,20 @@ class M_Users
 	}
 						
 	//
-	// Получение пользователя
-	// $id_user		- если не указан, брать текущего
-	// результат	- объект пользователя
+	// РџРѕР»СѓС‡РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+	// $id_user		- РµСЃР»Рё РЅРµ СѓРєР°Р·Р°РЅ, Р±СЂР°С‚СЊ С‚РµРєСѓС‰РµРіРѕ
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- РѕР±СЉРµРєС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
 	//
 	public function Get($id_user = null)
 	{	
-		// Если id_user не указан, берем его по текущей сессии.
+		// Р•СЃР»Рё id_user РЅРµ СѓРєР°Р·Р°РЅ, Р±РµСЂРµРј РµРіРѕ РїРѕ С‚РµРєСѓС‰РµР№ СЃРµСЃСЃРёРё.
 		if ($id_user == null)
 			$id_user = $this->GetUid();
 			
 		if ($id_user == null)
 			return null;
 			
-		// А теперь просто возвращаем пользователя по id_user.
+		// Рђ С‚РµРїРµСЂСЊ РїСЂРѕСЃС‚Рѕ РІРѕР·РІСЂР°С‰Р°РµРј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ id_user.
 		$t = "SELECT * FROM users WHERE id_user = '%d'";
 		$query = sprintf($t, $id_user);
 		$result = $this->msql->Select($query);
@@ -116,21 +133,21 @@ class M_Users
 	}
 	
 	//
-	// Получает пользователя по логину
+	// РџРѕР»СѓС‡Р°РµС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ Р»РѕРіРёРЅСѓ
 	//
-	public function GetByLogin($login)
+	public function GetByMail($mail)
 	{	
-		$t = "SELECT * FROM users WHERE login = '%s'";
-		$query = sprintf($t, mysql_real_escape_string($login));
+		$t = "SELECT * FROM users WHERE mail = '%s'";
+		$query = sprintf($t, $this->msql->mysqli->real_escape_string($mail));
 		$result = $this->msql->Select($query);
 		return $result[0];
 	}
 			
 	//
-	// Проверка наличия привилегии
-	// $priv 		- имя привилегии
-	// $id_user		- если не указан, значит, для текущего
-	// результат	- true или false
+	// РџСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ РїСЂРёРІРёР»РµРіРёРё
+	// $priv 		- РёРјСЏ РїСЂРёРІРёР»РµРіРёРё
+	// $id_user		- РµСЃР»Рё РЅРµ СѓРєР°Р·Р°РЅ, Р·РЅР°С‡РёС‚, РґР»СЏ С‚РµРєСѓС‰РµРіРѕ
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- true РёР»Рё false
 	//
 	public function Can($priv, $id_user = null)
 	{		
@@ -152,9 +169,9 @@ class M_Users
 	}
 
 	//
-	// Проверка активности пользователя
-	// $id_user		- идентификатор
-	// результат	- true если online
+	// РџСЂРѕРІРµСЂРєР° Р°РєС‚РёРІРЅРѕСЃС‚Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+	// $id_user		- РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- true РµСЃР»Рё online
 	//
 	public function IsOnline($id_user)
 	{		
@@ -172,61 +189,61 @@ class M_Users
 	}
 	
 	//
-	// Получение id текущего пользователя
-	// результат	- UID
+	// РџРѕР»СѓС‡РµРЅРёРµ id С‚РµРєСѓС‰РµРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- UID
 	//
 	public function GetUid()
 	{	
-		// Проверка кеша.
+		// РџСЂРѕРІРµСЂРєР° РєРµС€Р°.
 		if ($this->uid != null)
 			return $this->uid;	
 
-		// Берем по текущей сессии.
+		// Р‘РµСЂРµРј РїРѕ С‚РµРєСѓС‰РµР№ СЃРµСЃСЃРёРё.
 		$sid = $this->GetSid();
 				
 		if ($sid == null)
 			return null;
 			
 		$t = "SELECT id_user FROM sessions WHERE sid = '%s'";
-		$query = sprintf($t, mysql_real_escape_string($sid));
+		$query = sprintf($t, $this->msql->mysqli->real_escape_string($sid));
 		$result = $this->msql->Select($query);
 				
-		// Если сессию не нашли - значит пользователь не авторизован.
+		// Р•СЃР»Рё СЃРµСЃСЃРёСЋ РЅРµ РЅР°С€Р»Рё - Р·РЅР°С‡РёС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ Р°РІС‚РѕСЂРёР·РѕРІР°РЅ.
 		if (count($result) == 0)
 			return null;
 			
-		// Если нашли - запоминм ее.
+		// Р•СЃР»Рё РЅР°С€Р»Рё - Р·Р°РїРѕРјРёРЅРј РµРµ.
 		$this->uid = $result[0]['id_user'];
 		return $this->uid;
 	}
 
 	//
-	// Функция возвращает идентификатор текущей сессии
-	// результат	- SID
+	// Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РµРєСѓС‰РµР№ СЃРµСЃСЃРёРё
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- SID
 	//
 	private function GetSid()
 	{
-		// Проверка кеша.
+		// РџСЂРѕРІРµСЂРєР° РєРµС€Р°.
 		if ($this->sid != null)
 			return $this->sid;
 	
-		// Ищем SID в сессии.
+		// РС‰РµРј SID РІ СЃРµСЃСЃРёРё.
 		$sid = $_SESSION['sid'];
 								
-		// Если нашли, попробуем обновить time_last в базе. 
-		// Заодно и проверим, есть ли сессия там.
+		// Р•СЃР»Рё РЅР°С€Р»Рё, РїРѕРїСЂРѕР±СѓРµРј РѕР±РЅРѕРІРёС‚СЊ time_last РІ Р±Р°Р·Рµ. 
+		// Р—Р°РѕРґРЅРѕ Рё РїСЂРѕРІРµСЂРёРј, РµСЃС‚СЊ Р»Рё СЃРµСЃСЃРёСЏ С‚Р°Рј.
 		if ($sid != null)
 		{
 			$session = array();
 			$session['time_last'] = date('Y-m-d H:i:s'); 			
 			$t = "sid = '%s'";
-			$where = sprintf($t, mysql_real_escape_string($sid));
+			$where = sprintf($t, $this->msql->mysqli->real_escape_string($sid));
 			$affected_rows = $this->msql->Update('sessions', $session, $where);
 
 			if ($affected_rows == 0)
 			{
 				$t = "SELECT count(*) FROM sessions WHERE sid = '%s'";		
-				$query = sprintf($t, mysql_real_escape_string($sid));
+				$query = sprintf($t, $this->msql->mysqli->real_escape_string($sid));
 				$result = $this->msql->Select($query);
 				
 				if ($result[0]['count(*)'] == 0)
@@ -234,8 +251,8 @@ class M_Users
 			}			
 		}		
 		
-		// Нет сессии? Ищем логин и md5(пароль) в куках.
-		// Т.е. пробуем переподключиться.
+		// РќРµС‚ СЃРµСЃСЃРёРё? РС‰РµРј Р»РѕРіРёРЅ Рё md5(РїР°СЂРѕР»СЊ) РІ РєСѓРєР°С….
+		// Рў.Рµ. РїСЂРѕР±СѓРµРј РїРµСЂРµРїРѕРґРєР»СЋС‡РёС‚СЊСЃСЏ.
 		if ($sid == null && isset($_COOKIE['login']))
 		{
 			$user = $this->GetByLogin($_COOKIE['login']);
@@ -244,24 +261,24 @@ class M_Users
 				$sid = $this->OpenSession($user['id_user']);
 		}
 		
-		// Запоминаем в кеш.
+		// Р—Р°РїРѕРјРёРЅР°РµРј РІ РєРµС€.
 		if ($sid != null)
 			$this->sid = $sid;
 		
-		// Возвращаем, наконец, SID.
+		// Р’РѕР·РІСЂР°С‰Р°РµРј, РЅР°РєРѕРЅРµС†, SID.
 		return $sid;		
 	}
 	
 	//
-	// Открытие новой сессии
-	// результат	- SID
+	// РћС‚РєСЂС‹С‚РёРµ РЅРѕРІРѕР№ СЃРµСЃСЃРёРё
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- SID
 	//
 	private function OpenSession($id_user)
 	{
-		// генерируем SID
+		// РіРµРЅРµСЂРёСЂСѓРµРј SID
 		$sid = $this->GenerateStr(10);
 				
-		// вставляем SID в БД
+		// РІСЃС‚Р°РІР»СЏРµРј SID РІ Р‘Р”
 		$now = date('Y-m-d H:i:s'); 
 		$session = array();
 		$session['id_user'] = $id_user;
@@ -270,17 +287,17 @@ class M_Users
 		$session['time_last'] = $now;				
 		$this->msql->Insert('sessions', $session); 
 				
-		// регистрируем сессию в PHP сессии
+		// СЂРµРіРёСЃС‚СЂРёСЂСѓРµРј СЃРµСЃСЃРёСЋ РІ PHP СЃРµСЃСЃРёРё
 		$_SESSION['sid'] = $sid;				
 				
-		// возвращаем SID
+		// РІРѕР·РІСЂР°С‰Р°РµРј SID
 		return $sid;	
 	}
 
 	//
-	// Генерация случайной последовательности
-	// $length 		- ее длина
-	// результат	- случайная строка
+	// Р“РµРЅРµСЂР°С†РёСЏ СЃР»СѓС‡Р°Р№РЅРѕР№ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё
+	// $length 		- РµРµ РґР»РёРЅР°
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- СЃР»СѓС‡Р°Р№РЅР°СЏ СЃС‚СЂРѕРєР°
 	//
 	private function GenerateStr($length = 10) 
 	{

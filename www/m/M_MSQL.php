@@ -1,14 +1,14 @@
 <?php
 //
-// Помощник работы с БД
+// РџРѕРјРѕС‰РЅРёРє СЂР°Р±РѕС‚С‹ СЃ Р‘Р”
 //
 class M_MSQL
 {
-	private static $instance;	// экземпляр класса
-
+	private static $instance;	// СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР°
+        private static $mysqli; 
 	//
-	// Получение экземпляра класса
-	// результат	- экземпляр класса MSQL
+	// РџРѕР»СѓС‡РµРЅРёРµ СЌРєР·РµРјРїР»СЏСЂР° РєР»Р°СЃСЃР°
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° MSQL
 	//
 	public static function Instance()
 	{
@@ -20,33 +20,43 @@ class M_MSQL
 
 	private function __construct()
 	{
-		// Языковая настройка.
+		// РЇР·С‹РєРѕРІР°СЏ РЅР°СЃС‚СЂРѕР№РєР°.
 		setlocale(LC_ALL, 'ru_RU.CP1251');	
 		
-		// Подключение к БД.
-		mysql_connect(MYSQL_SERVER, MYSQL_USER, MYSQL_PASSWORD) or die('No connect with data base'); 
-		mysql_query('SET NAMES cp1251');
-		mysql_select_db(MYSQL_DB) or die('No data base');
+		// РџРѕРґРєР»СЋС‡РµРЅРёРµ Рє Р‘Р”.
+                $mysqli = new mysqli(MYSQL_SERVER, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB);
+
+                // РїСЂРѕРІРµСЂРєР° СЃРѕРµРґРёРЅРµРЅРёСЏ 
+                if (mysqli_connect_errno()) {
+                    printf("РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕРґРєР»СЋС‡РёС‚СЊСЃСЏ: %s\n", mysqli_connect_error());
+                    exit();
+                }
+                
+                if(!$mysqli->set_charset("cp1251")){
+                    printf("РћС€РёР±РєР° РїСЂРё Р·Р°РіСЂСѓР·РєРµ РЅР°Р±РѕСЂР° СЃРёРјРІРѕР»РѕРІ: %s\n", $mysqli->error);
+                } 
+		//mysqli_query('SET NAMES cp1251');
+		//mysql_select_db(MYSQL_DB) or die('No data base');
 	}
 	
 	//
-	// Выборка строк
-	// $query    	- полный текст SQL запроса
-	// результат	- массив выбранных объектов
+	// Р’С‹Р±РѕСЂРєР° СЃС‚СЂРѕРє
+	// $query    	- РїРѕР»РЅС‹Р№ С‚РµРєСЃС‚ SQL Р·Р°РїСЂРѕСЃР°
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- РјР°СЃСЃРёРІ РІС‹Р±СЂР°РЅРЅС‹С… РѕР±СЉРµРєС‚РѕРІ
 	//
 	public function Select($query)
 	{
-		$result = mysql_query($query);
+		$result = mysqli_query($query);
 		
 		if (!$result)
-			die(mysql_error());
+			die(mysqli_error());
 		
-		$n = mysql_num_rows($result);
+		$n = mysqli_num_rows($result);
 		$arr = array();
 	
 		for($i = 0; $i < $n; $i++)
 		{
-			$row = mysql_fetch_assoc($result);		
+			$row = mysqli_fetch_assoc($result);		
 			$arr[] = $row;
 		}
 
@@ -54,10 +64,10 @@ class M_MSQL
 	}
 	
 	//
-	// Вставка строки
-	// $table 		- имя таблицы
-	// $object 		- ассоциативный массив с парами вида "имя столбца - значение"
-	// результат	- идентификатор новой строки
+	// Р’СЃС‚Р°РІРєР° СЃС‚СЂРѕРєРё
+	// $table 		- РёРјСЏ С‚Р°Р±Р»РёС†С‹
+	// $object 		- Р°СЃСЃРѕС†РёР°С‚РёРІРЅС‹Р№ РјР°СЃСЃРёРІ СЃ РїР°СЂР°РјРё РІРёРґР° "РёРјСЏ СЃС‚РѕР»Р±С†Р° - Р·РЅР°С‡РµРЅРёРµ"
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РЅРѕРІРѕР№ СЃС‚СЂРѕРєРё
 	//
 	public function Insert($table, $object)
 	{			
@@ -93,11 +103,11 @@ class M_MSQL
 	}
 	
 	//
-	// Изменение строк
-	// $table 		- имя таблицы
-	// $object 		- ассоциативный массив с парами вида "имя столбца - значение"
-	// $where		- условие (часть SQL запроса)
-	// результат	- число измененных строк
+	// РР·РјРµРЅРµРЅРёРµ СЃС‚СЂРѕРє
+	// $table 		- РёРјСЏ С‚Р°Р±Р»РёС†С‹
+	// $object 		- Р°СЃСЃРѕС†РёР°С‚РёРІРЅС‹Р№ РјР°СЃСЃРёРІ СЃ РїР°СЂР°РјРё РІРёРґР° "РёРјСЏ СЃС‚РѕР»Р±С†Р° - Р·РЅР°С‡РµРЅРёРµ"
+	// $where		- СѓСЃР»РѕРІРёРµ (С‡Р°СЃС‚СЊ SQL Р·Р°РїСЂРѕСЃР°)
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- С‡РёСЃР»Рѕ РёР·РјРµРЅРµРЅРЅС‹С… СЃС‚СЂРѕРє
 	//	
 	public function Update($table, $object, $where)
 	{
@@ -129,10 +139,10 @@ class M_MSQL
 	}
 	
 	//
-	// Удаление строк
-	// $table 		- имя таблицы
-	// $where		- условие (часть SQL запроса)	
-	// результат	- число удаленных строк
+	// РЈРґР°Р»РµРЅРёРµ СЃС‚СЂРѕРє
+	// $table 		- РёРјСЏ С‚Р°Р±Р»РёС†С‹
+	// $where		- СѓСЃР»РѕРІРёРµ (С‡Р°СЃС‚СЊ SQL Р·Р°РїСЂРѕСЃР°)	
+	// СЂРµР·СѓР»СЊС‚Р°С‚	- С‡РёСЃР»Рѕ СѓРґР°Р»РµРЅРЅС‹С… СЃС‚СЂРѕРє
 	//		
 	public function Delete($table, $where)
 	{
