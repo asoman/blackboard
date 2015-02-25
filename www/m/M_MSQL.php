@@ -146,12 +146,12 @@ class M_MSQL
 	public function Delete($table, $where)
 	{
 		$query = "DELETE FROM $table WHERE $where";		
-		$result = mysql_query($query);
+		$result = $this->mysqli->query($query);
 						
 		if (!$result)
-			die(mysql_error());
+			die($this->mysqli->error);
 
-		return mysql_affected_rows();	
+		return $this->mysqli->affected_rows;	
 	}
         
         public function real_escape_string($string)

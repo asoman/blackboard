@@ -69,7 +69,7 @@ class M_Users
 		if (!password_verify($password,$user['password']))
 			return false;
 				
-		// запоминаем имя и md5(пароль)
+		// запоминаем имя и пароль
 		if ($remember)
 		{
 			$expire = time() + 3600 * 24 * 100;
@@ -104,9 +104,11 @@ class M_Users
 	{
 		setcookie('mail', '', time() - 1);
 		setcookie('password', '', time() - 1);
+                echo $_SESSION['sid'];
 		unset($_COOKIE['mail']);
 		unset($_COOKIE['password']);
-		unset($_SESSION['sid']);		
+		unset($_SESSION['sid']);
+                
 		$this->sid = null;
 		$this->uid = null;
 	}
@@ -253,9 +255,9 @@ class M_Users
 		
 		// Нет сессии? Ищем логин и пароль в куках.
 		// Т.е. пробуем переподключиться.
-		if ($sid == null && isset($_COOKIE['login']))
+		if ($sid == null && isset($_COOKIE['mail']))
 		{
-			$user = $this->GetByLogin($_COOKIE['login']);
+			$user = $this->GetByMail($_COOKIE['mail']);
 			
 			if ($user != null && password_verify($_COOKIE['password'],$user['password']))
 				$sid = $this->OpenSession($user['id_user']);

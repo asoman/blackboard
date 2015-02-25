@@ -35,9 +35,12 @@ $(function () {
         valid = valid && checkRegexp(password, /^([0-9a-zA-Z!#?~])+$/, "Пароль содержит запрещённые символы.");
         if (valid) {
             $.post("ajax.php", { request: "login", mail: email.val(), password: password.val(), remember: remember.prop("checked")},function(data){
-  alert("Data Loaded: " + data );
+                if(data==0)
+                    dialog.dialog("close");
+                else
+                    updateTips("Неверный логин или пароль!");
 });
-            //dialog.dialog("close");
+            
             
            
         }
@@ -76,5 +79,12 @@ $(function () {
         addUser();
     });
 
+    
+});
+
+
+$(window).load(function(){
+    $("#greeting").hide();
+    logout();
     
 });

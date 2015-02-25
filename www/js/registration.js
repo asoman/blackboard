@@ -57,9 +57,11 @@ $(function () {
         valid = valid && checkPassEven(password, repeatpassword, "Введённые пароли различны");
         if (valid) {
         $.post("ajax.php", { request: "register", mail: email.val(), password: password.val()},function(data){
-            alert("Data Loaded: " + data);
+            if(data==0)
+               dialog.dialog("close"); 
+           else
+               updateTips("Данная почта уже используется");
         });
-       // dialog.dialog("close");
         }
         return valid;
     }
@@ -96,5 +98,11 @@ $(function () {
         addUser();
     });
 
+    
+});
+
+$(window).load(function(){
+    $("#greeting").hide();
+    logout();
     
 });
