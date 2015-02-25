@@ -1,14 +1,14 @@
 <?php
 //
-// Ïîìîùíèê ðàáîòû ñ ÁÄ
+// ÐŸÐ¾Ð¼Ð¾Ñ‰Ð½Ð¸Ðº Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹ Ñ Ð‘Ð”
 //
 class M_MSQL
 {
-	private static $instance;	// ýêçåìïëÿð êëàññà
-
+	private static $instance;	// ÑÐºÐ·ÐµÐ¼Ð¿Ð»ÑÑ€ ÐºÐ»Ð°ÑÑÐ°
+        private $mysqli; 
 	//
-	// Ïîëó÷åíèå ýêçåìïëÿðà êëàññà
-	// ðåçóëüòàò	- ýêçåìïëÿð êëàññà MSQL
+	// ÐŸÐ¾Ð»ÑƒÑ‡ÐµÐ½Ð¸Ðµ ÑÐºÐ·ÐµÐ¼Ð¿Ð»ÑÑ€Ð° ÐºÐ»Ð°ÑÑÐ°
+	// Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚	- ÑÐºÐ·ÐµÐ¼Ð¿Ð»ÑÑ€ ÐºÐ»Ð°ÑÑÐ° MSQL
 	//
 	public static function Instance()
 	{
@@ -20,33 +20,42 @@ class M_MSQL
 
 	private function __construct()
 	{
-		// ßçûêîâàÿ íàñòðîéêà.
+		// Ð¯Ð·Ñ‹ÐºÐ¾Ð²Ð°Ñ Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ°.
 		setlocale(LC_ALL, 'ru_RU.CP1251');	
 		
-		// Ïîäêëþ÷åíèå ê ÁÄ.
-		mysql_connect(MYSQL_SERVER, MYSQL_USER, MYSQL_PASSWORD) or die('No connect with data base'); 
-		mysql_query('SET NAMES cp1251');
-		mysql_select_db(MYSQL_DB) or die('No data base');
+		// ÐŸÐ¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ðº Ð‘Ð”.
+                $this->mysqli = new mysqli(MYSQL_SERVER, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB);
+
+                // Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ° ÑÐ¾ÐµÐ´Ð¸Ð½ÐµÐ½Ð¸Ñ 
+                if (mysqli_connect_errno()) {
+                    printf("ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð¿Ð¾Ð´ÐºÐ»ÑŽÑ‡Ð¸Ñ‚ÑŒÑÑ: %s\n", mysqli_connect_error());
+                    exit();
+                }
+                
+                if(!$this->mysqli->set_charset("cp1251")){
+                    printf("ÐžÑˆÐ¸Ð±ÐºÐ° Ð¿Ñ€Ð¸ Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐµ Ð½Ð°Ð±Ð¾Ñ€Ð° ÑÐ¸Ð¼Ð²Ð¾Ð»Ð¾Ð²: %s\n", $mysqli->error);
+                } 
+		
 	}
 	
 	//
-	// Âûáîðêà ñòðîê
-	// $query    	- ïîëíûé òåêñò SQL çàïðîñà
-	// ðåçóëüòàò	- ìàññèâ âûáðàííûõ îáúåêòîâ
+	// Ð’Ñ‹Ð±Ð¾Ñ€ÐºÐ° ÑÑ‚Ñ€Ð¾Ðº
+	// $query    	- Ð¿Ð¾Ð»Ð½Ñ‹Ð¹ Ñ‚ÐµÐºÑÑ‚ SQL Ð·Ð°Ð¿Ñ€Ð¾ÑÐ°
+	// Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚	- Ð¼Ð°ÑÑÐ¸Ð² Ð²Ñ‹Ð±Ñ€Ð°Ð½Ð½Ñ‹Ñ… Ð¾Ð±ÑŠÐµÐºÑ‚Ð¾Ð²
 	//
 	public function Select($query)
 	{
-		$result = mysql_query($query);
+		$result = $this->mysqli->query($query, MYSQLI_STORE_RESULT);
 		
 		if (!$result)
-			die(mysql_error());
+			die($this->mysqli->error);
 		
-		$n = mysql_num_rows($result);
+		$n = mysqli_num_rows($result);
 		$arr = array();
 	
 		for($i = 0; $i < $n; $i++)
 		{
-			$row = mysql_fetch_assoc($result);		
+			$row = $result->fetch_assoc();                //ÐŸÑ€Ð¾Ñ‚ÐµÑÑ‚Ð¸Ñ‚ÑŒ!!!!!!!!!!!!!!!!!!!!!	
 			$arr[] = $row;
 		}
 
@@ -54,10 +63,10 @@ class M_MSQL
 	}
 	
 	//
-	// Âñòàâêà ñòðîêè
-	// $table 		- èìÿ òàáëèöû
-	// $object 		- àññîöèàòèâíûé ìàññèâ ñ ïàðàìè âèäà "èìÿ ñòîëáöà - çíà÷åíèå"
-	// ðåçóëüòàò	- èäåíòèôèêàòîð íîâîé ñòðîêè
+	// Ð’ÑÑ‚Ð°Ð²ÐºÐ° ÑÑ‚Ñ€Ð¾ÐºÐ¸
+	// $table 		- Ð¸Ð¼Ñ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñ‹
+	// $object 		- Ð°ÑÑÐ¾Ñ†Ð¸Ð°Ñ‚Ð¸Ð²Ð½Ñ‹Ð¹ Ð¼Ð°ÑÑÐ¸Ð² Ñ Ð¿Ð°Ñ€Ð°Ð¼Ð¸ Ð²Ð¸Ð´Ð° "Ð¸Ð¼Ñ ÑÑ‚Ð¾Ð»Ð±Ñ†Ð° - Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ"
+	// Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚	- Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ Ð½Ð¾Ð²Ð¾Ð¹ ÑÑ‚Ñ€Ð¾ÐºÐ¸
 	//
 	public function Insert($table, $object)
 	{			
@@ -66,7 +75,7 @@ class M_MSQL
 	
 		foreach ($object as $key => $value)
 		{
-			$key = mysql_real_escape_string($key . '');
+			$key = $this->mysqli->real_escape_string($key);
 			$columns[] = $key;
 			
 			if ($value === null)
@@ -75,7 +84,7 @@ class M_MSQL
 			}
 			else
 			{
-				$value = mysql_real_escape_string($value . '');							
+				$value = $this->mysqli->real_escape_string($value);							
 				$values[] = "'$value'";
 			}
 		}
@@ -84,20 +93,20 @@ class M_MSQL
 		$values_s = implode(',', $values);
 			
 		$query = "INSERT INTO $table ($columns_s) VALUES ($values_s)";
-		$result = mysql_query($query);
+		$result = $this->mysqli->query($query, MYSQLI_STORE_RESULT);
 								
 		if (!$result)
-			die(mysql_error());
+			die($this->mysqli->error);
 			
-		return mysql_insert_id();
+		return $this->mysqli->insert_id;
 	}
 	
 	//
-	// Èçìåíåíèå ñòðîê
-	// $table 		- èìÿ òàáëèöû
-	// $object 		- àññîöèàòèâíûé ìàññèâ ñ ïàðàìè âèäà "èìÿ ñòîëáöà - çíà÷åíèå"
-	// $where		- óñëîâèå (÷àñòü SQL çàïðîñà)
-	// ðåçóëüòàò	- ÷èñëî èçìåíåííûõ ñòðîê
+	// Ð˜Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ðµ ÑÑ‚Ñ€Ð¾Ðº
+	// $table 		- Ð¸Ð¼Ñ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñ‹
+	// $object 		- Ð°ÑÑÐ¾Ñ†Ð¸Ð°Ñ‚Ð¸Ð²Ð½Ñ‹Ð¹ Ð¼Ð°ÑÑÐ¸Ð² Ñ Ð¿Ð°Ñ€Ð°Ð¼Ð¸ Ð²Ð¸Ð´Ð° "Ð¸Ð¼Ñ ÑÑ‚Ð¾Ð»Ð±Ñ†Ð° - Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ"
+	// $where		- ÑƒÑÐ»Ð¾Ð²Ð¸Ðµ (Ñ‡Ð°ÑÑ‚ÑŒ SQL Ð·Ð°Ð¿Ñ€Ð¾ÑÐ°)
+	// Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚	- Ñ‡Ð¸ÑÐ»Ð¾ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð½Ñ‹Ñ… ÑÑ‚Ñ€Ð¾Ðº
 	//	
 	public function Update($table, $object, $where)
 	{
@@ -105,7 +114,7 @@ class M_MSQL
 	
 		foreach ($object as $key => $value)
 		{
-			$key = mysql_real_escape_string($key . '');
+			$key = $this->mysqli->real_escape_string($key . '');
 			
 			if ($value === null)
 			{
@@ -113,26 +122,26 @@ class M_MSQL
 			}
 			else
 			{
-				$value = mysql_real_escape_string($value . '');					
+				$value = $this->mysqli->real_escape_string($value . '');					
 				$sets[] = "$key='$value'";			
 			}			
 		}
 		
 		$sets_s = implode(',', $sets);			
 		$query = "UPDATE $table SET $sets_s WHERE $where";
-		$result = mysql_query($query);
+		$result = $this->mysqli->query($query, MYSQLI_STORE_RESULT);
 		
 		if (!$result)
-			die(mysql_error());
+			die($this->mysqli->error);
 
-		return mysql_affected_rows();	
+		return $this->mysqli->affected_rows;	
 	}
 	
 	//
-	// Óäàëåíèå ñòðîê
-	// $table 		- èìÿ òàáëèöû
-	// $where		- óñëîâèå (÷àñòü SQL çàïðîñà)	
-	// ðåçóëüòàò	- ÷èñëî óäàëåííûõ ñòðîê
+	// Ð£Ð´Ð°Ð»ÐµÐ½Ð¸Ðµ ÑÑ‚Ñ€Ð¾Ðº
+	// $table 		- Ð¸Ð¼Ñ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñ‹
+	// $where		- ÑƒÑÐ»Ð¾Ð²Ð¸Ðµ (Ñ‡Ð°ÑÑ‚ÑŒ SQL Ð·Ð°Ð¿Ñ€Ð¾ÑÐ°)	
+	// Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚	- Ñ‡Ð¸ÑÐ»Ð¾ ÑƒÐ´Ð°Ð»ÐµÐ½Ð½Ñ‹Ñ… ÑÑ‚Ñ€Ð¾Ðº
 	//		
 	public function Delete($table, $where)
 	{
@@ -144,4 +153,9 @@ class M_MSQL
 
 		return mysql_affected_rows();	
 	}
+        
+        public function real_escape_string($string)
+        {
+            return $this->mysqli->real_escape_string($string.'');
+        }
 }

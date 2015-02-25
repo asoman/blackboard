@@ -19,8 +19,8 @@ $(function () {
     function checkLength(o, n, min, max) {
         if (o.val().length > max || o.val().length < min) {
             o.addClass("ui-state-error");
-            updateTips("Äëèíà " + n + " äîëæíà ñîñòàâëÿòü îò " +
-                    min + " äî " + max + " ñèìâîëîâ.");
+            updateTips("Ð”Ð»Ð¸Ð½Ð° " + n + " Ð´Ð¾Ð»Ð¶Ð½Ð° ÑÐ¾ÑÑ‚Ð°Ð²Ð»ÑÑ‚ÑŒ Ð¾Ñ‚ " +
+                    min + " Ð´Ð¾ " + max + " ÑÐ¸Ð¼Ð²Ð¾Ð»Ð¾Ð².");
             return false;
         } else {
             return true;
@@ -35,16 +35,31 @@ $(function () {
             return true;
         }
     }
+    
+    function checkPassEven(pass, repeat, n) {
+        if (!(pass.val()==repeat.val())) {
+            pass.addClass("ui-state-error");
+            updateTips(n);
+            return false;
+        } else {
+            return true;
+        }
+    }
+    
+    
     function addUser() {
         var valid = true;
         allFields.removeClass("ui-state-error");
         valid = valid && checkLength(email, "email", 6, 80);
         valid = valid && checkLength(password, "password", 5, 16);
-        valid = valid && checkRegexp(email, emailRegex, "Ïðèìåð: example@email.com");
-        valid = valid && checkRegexp(password, /^([0-9a-zA-Z!#?~])+$/, "Äîïóñòèìûå ñèìâîëû : A-Z a-z 0-9 +-*/=~!?");
+        valid = valid && checkRegexp(email, emailRegex, "ÐŸÑ€Ð¸Ð¼ÐµÑ€: example@email.com");
+        valid = valid && checkRegexp(password, /^([0-9a-zA-Z!#?~])+$/, "Ð”Ð¾Ð¿ÑƒÑÑ‚Ð¸Ð¼Ñ‹Ðµ ÑÐ¸Ð¼Ð²Ð¾Ð»Ñ‹ : A-Z a-z 0-9 +-*/=~!?");
+        valid = valid && checkPassEven(password, repeatpassword, "Ð’Ð²ÐµÐ´Ñ‘Ð½Ð½Ñ‹Ðµ Ð¿Ð°Ñ€Ð¾Ð»Ð¸ Ñ€Ð°Ð·Ð»Ð¸Ñ‡Ð½Ñ‹");
         if (valid) {
-//Îòïðàâêà äàííûõ íà ñåðâåð
-            dialog.dialog("close");
+        $.post("ajax.php", { request: "register", mail: email.val(), password: password.val()},function(data){
+            alert("Data Loaded: " + data);
+        });
+       // dialog.dialog("close");
         }
         return valid;
     }
@@ -53,15 +68,15 @@ $(function () {
     
     dialog = $("#dialog-form").dialog({
         autoOpen: true,
-        height: 500,
+        height: 400,
         width: 600,
         modal: true,
         buttons: {
-            "Ñîçäàòü àêêàóíò": addUser,
-            "Îòìåíà": function () {
+            "Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ Ð°ÐºÐºÐ°ÑƒÐ½Ñ‚": addUser,
+            "ÐžÑ‚Ð¼ÐµÐ½Ð°": function () {
                 dialog.dialog("close");
             },
-            "Óæå åñòü àêêàóíò?": function () {
+            "Ð£Ð¶Ðµ ÐµÑÑ‚ÑŒ Ð°ÐºÐºÐ°ÑƒÐ½Ñ‚?": function () {
                 form[ 0 ].reset();
                 allFields.removeClass("ui-state-error");
                 window.location.replace("/auth/login");

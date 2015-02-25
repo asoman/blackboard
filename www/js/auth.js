@@ -6,7 +6,9 @@ $(function () {
             email = $("#email"),
             password = $("#password"),
             allFields = $([]).add(email).add(password),
+            remember = $("#remember"),
             tips = $(".validateTips");
+            remember.button();
     function updateTips(t) {
         tips
                 .text(t)
@@ -29,11 +31,15 @@ $(function () {
     function addUser() {
         var valid = true;
         allFields.removeClass("ui-state-error");
-        valid = valid && checkRegexp(email, emailRegex, "В Email содержится ошибка.");
-        valid = valid && checkRegexp(password, /^([0-9a-zA-Z!#?~])+$/, "Пароль содержит запрещённые символы.");
+        valid = valid && checkRegexp(email, emailRegex, "Р’ Email СЃРѕРґРµСЂР¶РёС‚СЃСЏ РѕС€РёР±РєР°.");
+        valid = valid && checkRegexp(password, /^([0-9a-zA-Z!#?~])+$/, "РџР°СЂРѕР»СЊ СЃРѕРґРµСЂР¶РёС‚ Р·Р°РїСЂРµС‰С‘РЅРЅС‹Рµ СЃРёРјРІРѕР»С‹.");
         if (valid) {
-//Отправка данных на сервер
-            dialog.dialog("close");
+            $.post("ajax.php", { request: "login", mail: email.val(), password: password.val(), remember: remember.prop("checked")},function(data){
+  alert("Data Loaded: " + data );
+});
+            //dialog.dialog("close");
+            
+           
         }
         return valid;
     }
@@ -42,15 +48,15 @@ $(function () {
     
     dialog = $("#dialog-form").dialog({
         autoOpen: true,
-        height: 350,
-        width: 500,
+        height: 400,
+        width: 600,
         modal: true,
         buttons: {
-            "Войти": addUser,
-            "Отмена": function () {
+            "Р’РѕР№С‚Рё": addUser,
+            "РћС‚РјРµРЅР°": function () {
                 dialog.dialog("close");
             },
-            "Регистрация": function () {
+            "Р РµРіРёСЃС‚СЂР°С†РёСЏ": function () {
                 form[ 0 ].reset();
                 allFields.removeClass("ui-state-error");
                 window.location.replace("/auth/register");
