@@ -28,13 +28,22 @@ $(function () {
         }
     }
     
+    function remember_checked(){
+        
+        if(remember.prop("checked"))
+            return 1
+        else
+            return 0;
+    }
+    
     function addUser() {
         var valid = true;
         allFields.removeClass("ui-state-error");
         valid = valid && checkRegexp(email, emailRegex, "В Email содержится ошибка.");
         valid = valid && checkRegexp(password, /^([0-9a-zA-Z!#?~])+$/, "Пароль содержит запрещённые символы.");
+        
         if (valid) {
-            $.post("ajax.php", { request: "login", mail: email.val(), password: password.val(), remember: remember.prop("checked")},function(data){
+            $.post("ajax.php", { request: "login", mail: email.val(), password: password.val(), remember: remember_checked()},function(data){
                 if(data==0)
                     dialog.dialog("close");
                 else

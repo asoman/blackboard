@@ -2,7 +2,8 @@
 
 include_once("a/m_ajax.php");
 include_once('config.php');
-
+ session_start();
+ 
 if(IsPost()){
     
     $post = $_POST;

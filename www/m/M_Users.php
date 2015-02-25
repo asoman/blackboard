@@ -52,7 +52,7 @@ class M_Users
 	// $remember 	- нужно ли запомнить в куках
 	// результат	- true или false
 	//
-	public function Login($mail, $password, $remember = true)
+	public function Login($mail, $password, $remember = false)
 	{
                 
 		// вытаскиваем пользователя из БД 
@@ -75,7 +75,7 @@ class M_Users
 			$expire = time() + 3600 * 24 * 100;
 			setcookie('mail', $mail, $expire);
 			setcookie('password', $password, $expire);
-		}		
+              	}		
 				
 		// открываем сессию и запоминаем SID
 		$this->sid = $this->OpenSession($id_user);
@@ -104,11 +104,9 @@ class M_Users
 	{
 		setcookie('mail', '', time() - 1);
 		setcookie('password', '', time() - 1);
-                echo $_SESSION['sid'];
 		unset($_COOKIE['mail']);
 		unset($_COOKIE['password']);
 		unset($_SESSION['sid']);
-                
 		$this->sid = null;
 		$this->uid = null;
 	}
